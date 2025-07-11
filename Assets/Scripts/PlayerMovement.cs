@@ -76,35 +76,38 @@ public class PlayerMovement : MonoBehaviour
 
     private void UpdateAnimation()
     {
-        MovementState state;
+    MovementState state;
 
-        float horizontal = moveInput.x != 0 ? moveInput.x : mobileInputX;
+    float horizontal = moveInput.x != 0 ? moveInput.x : mobileInputX;
 
-        if (horizontal > 0f)
+    if (rb.velocity.y > 0.1f)
+    {
+        state = MovementState.jump;
+    }
+    else if (rb.velocity.y < -0.1f)
+    {
+        state = MovementState.fall;
+    }
+    else if (horizontal != 0)
+    {
+        // Jika kecepatan gerak saat ini sama dengan runSpeed, anggap berlari
+        if (Mathf.Abs(rb.velocity.x) >= runSpeed - 0.1f)
         {
-            state = MovementState.walk;
-            sprite.flipX = false;
-        }
-        else if (horizontal < 0f)
-        {
-            state = MovementState.walk;
-            sprite.flipX = true;
+            state = MovementState.run;
         }
         else
         {
-            state = MovementState.idle;
+            state = MovementState.walk;
         }
 
-        if (rb.velocity.y > 0.1f)
-        {
-            state = MovementState.jump;
-        }
-        else if (rb.velocity.y < -0.1f)
-        {
-            state = MovementState.fall;
-        }
+        sprite.flipX = horizontal < 0;
+    }
+    else
+    {
+        state = MovementState.idle;
+    }
 
-        anim.SetInteger("state", (int)state);
+    anim.SetInteger("state", (int)state);
     }
 
     private bool isGrounded()
@@ -144,4 +147,11 @@ public class PlayerMovement : MonoBehaviour
             Jump();
         }
     }
+
+    public void Die()
+    {
+    Debug.Log("Player mati karena kena trap");
+    Destroy(gameObject);
+    }
+
 }
